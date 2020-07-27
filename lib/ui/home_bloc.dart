@@ -3,9 +3,11 @@ import 'package:intl/intl.dart';
 import 'package:weatherflut/data/repository/api_repository.dart';
 import 'package:weatherflut/data/repository/store_repository.dart';
 import 'package:weatherflut/model/city.dart';
+import 'package:weatherflut/model/settings.dart';
 
 class HomeBloc extends ChangeNotifier {
   List<City> cities = [];
+  Settings settings = Settings();
   final StoreRepository storage;
   final ApiRepository apiService;
   bool loading = false;
@@ -34,6 +36,11 @@ class HomeBloc extends ChangeNotifier {
     } else {
       cities = await storage.getCities();
     }
+    await loadSettings();
+  }
+
+  Future<void> loadSettings() async{
+    settings = await storage.loadSettings();
     notifyListeners();
   }
 }

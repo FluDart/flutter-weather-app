@@ -7,6 +7,7 @@ import 'package:weatherflut/ui/common/loader_widget.dart';
 import 'package:weatherflut/ui/home/empty_widget.dart';
 import 'package:weatherflut/ui/home/weathers_widget.dart';
 import 'package:weatherflut/ui/home_bloc.dart';
+import 'package:weatherflut/ui/settings/settings_page.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -41,11 +42,18 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  void handleNavigatePress(BuildContext context) async {
+  void handleNavigateToCities(BuildContext context) async {
     await Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => CitiesPage()),
     );
     bloc.loadCities();
+  }
+
+  void handleNavigateToSettings(BuildContext context) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => SettingsPage()),
+    );
+    bloc.loadSettings();
   }
 
   @override
@@ -58,11 +66,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               ? bloc.loading
                   ? Center(child: LoaderWidget())
                   : EmptyWidget(
-                      onTap: () => handleNavigatePress(context),
+                      onTap: () => handleNavigateToCities(context),
                     )
               : WeathersWidget(
                   cities: bloc.cities,
-                  onTap: () => handleNavigatePress(context),
+                  settings: bloc.settings,
+                  onTap: () => handleNavigateToCities(context),
+                  onSetting: () => handleNavigateToSettings(context),
                 ),
         );
       },

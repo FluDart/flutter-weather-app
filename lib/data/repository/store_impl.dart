@@ -3,9 +3,11 @@ import 'dart:convert';
 import 'package:weatherflut/data/repository/store_repository.dart';
 import 'package:weatherflut/model/city.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:weatherflut/model/settings.dart';
 
 const keyCities = 'cities';
 const keyLastUpdate = 'last_update';
+const keySettings = 'settings';
 
 class StoreImpl extends StoreRepository {
   @override
@@ -71,5 +73,23 @@ class StoreImpl extends StoreRepository {
     final cities = await getCities();
     cities.removeWhere((element) => element.id == city.id);
     saveCities(cities);
+  }
+
+  @override
+  Future<Settings> loadSettings() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String settings = prefs.getString(keySettings);
+    if (settings == null) {
+      return Settings();
+    }
+    var mapSettings = jsonDecode(settings);
+    return Settings.fromJson(mapSettings);
+  }
+
+  @override
+  Future<void> saveSettings(Settings settings) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String newSettings = jsonEncode(settings.toJson());
+    await prefs.setString(keySettings, newSettings);
   }
 }
