@@ -80,3 +80,14 @@ class Weather {
         "predictability": predictability,
       };
 }
+
+extension weatherHelp on double{
+  double toFahrenheit() {
+    return (this * 9/5) + 32;
+  }
+
+  double toKilometers(){
+    return this * 1.6;
+  }
+}
+

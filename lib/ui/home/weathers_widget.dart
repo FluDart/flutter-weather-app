@@ -2,19 +2,25 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:weatherflut/model/city.dart';
+import 'package:weatherflut/model/settings.dart';
 import 'package:weatherflut/ui/home/weather_details_widget.dart';
 import 'package:weatherflut/ui/ui_constants.dart';
+import 'package:weatherflut/model/weather.dart';
 
 DateFormat format = DateFormat('E, dd MMM yyyy');
 
 class WeathersWidget extends StatefulWidget {
   final List<City> cities;
+  final Settings settings;
   final VoidCallback onTap;
+  final VoidCallback onSetting;
 
   const WeathersWidget({
     Key key,
     this.cities,
+    this.settings,
     this.onTap,
+    this.onSetting,
   }) : super(key: key);
 
   @override
@@ -80,6 +86,7 @@ class _WeathersWidgetState extends State<WeathersWidget> {
             final city = widget.cities[index];
             return WeatherItem(
               city: city,
+              settings: widget.settings,
               onTap: () => handleArrowPressed(city),
             );
           },
@@ -100,7 +107,7 @@ class _WeathersWidgetState extends State<WeathersWidget> {
           child: SafeArea(
             child: IconButton(
               icon: Icon(Icons.settings),
-              onPressed: widget.onTap,
+              onPressed: widget.onSetting,
             ),
           ),
         ),
@@ -111,11 +118,13 @@ class _WeathersWidgetState extends State<WeathersWidget> {
 
 class WeatherItem extends StatelessWidget {
   final City city;
+  final Settings settings;
   final VoidCallback onTap;
 
   const WeatherItem({
     Key key,
     this.city,
+    this.settings,
     this.onTap,
   }) : super(key: key);
 
@@ -162,7 +171,9 @@ class WeatherItem extends StatelessWidget {
                     TweenAnimationBuilder<int>(
                       tween: IntTween(
                         begin: 0,
-                        end: weather.theTemp.toInt(),
+                        end: settings.isCelsius
+                            ? weather.theTemp.toInt()
+                            : weather.theTemp.toFahrenheit().toInt(),
                       ),
                       duration: const Duration(
                         milliseconds: 800,
@@ -185,7 +196,7 @@ class WeatherItem extends StatelessWidget {
                       child: Align(
                         alignment: Alignment.topRight,
                         child: Text(
-                          '°C',
+                          settings.isCelsius ? '°C' : '°F',
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w700,
@@ -237,7 +248,9 @@ class WeatherItem extends StatelessWidget {
                   Expanded(
                     child: _WeatherItemDetails(
                       title: 'Viento',
-                      value: "${weather.windSpeed.toStringAsFixed(2)} mph",
+                      value: settings.isMiles
+                          ? "${weather.windSpeed.toStringAsFixed(2)} mph"
+                          : "${weather.windSpeed.toKilometers().toStringAsFixed(2)} km/h",
                     ),
                   ),
                   Expanded(
@@ -282,7 +295,8 @@ class _WeatherItemDetails extends StatelessWidget {
   final String title;
   final String value;
 
-  const _WeatherItemDetails({Key key, this.title, this.value}) : super(key: key);
+  const _WeatherItemDetails({Key key, this.title, this.value})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
